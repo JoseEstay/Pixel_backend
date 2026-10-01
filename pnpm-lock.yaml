@@ -167,7 +167,7 @@ importers:
   .:
     dependencies:
       argon2id:
-        specifier: ^1.0.1
+        specifier: 1.0.1
         version: 1.0.1
       cors:
         specifier: 2.8.6

@@ -1,4 +1,4 @@
-import validateCategory from '../schemas/category.schema.js'
+import validateCategory, { validateCategoryPatch } from '../schemas/category.schema.js'
 import { CategoryModel } from '../models/category.model.js'
 
 export class categoryController {
@@ -71,6 +71,26 @@ export class categoryController {
 
     try {
       const updatedCategory = await CategoryModel.update(id, { input: result.data })
+      if (!updatedCategory) {
+        return res.status(404).json({ error: 'Categoria no encontrada' })
+      }
+      return res.status(200).json(updatedCategory)
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: error.message })
+    }
+  }
+
+  static async patch (req, res) {
+    const { id } = req.params
+    const result = validateCategoryPatch(req.body)
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues })
+    }
+
+    try {
+      const updatedCategory = await CategoryModel.updatePartial(id, { input: result.data })
       if (!updatedCategory) {
         return res.status(404).json({ error: 'Categoria no encontrada' })
       }

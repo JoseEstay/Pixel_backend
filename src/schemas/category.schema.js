@@ -25,5 +25,13 @@ const categorySchema = z.object({
 const validateCategory = (input) => {
   return categorySchema.safeParse(input)
 }
+export const validateCategoryPatch = (input) => {
+  return categorySchema
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: 'Debes enviar al menos un campo para actualizar'
+    })
+    .safeParse(input)
+}
 
 export default validateCategory
