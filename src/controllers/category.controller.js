@@ -44,6 +44,22 @@ export class categoryController {
     }
   }
 
+  // DELETE
+  static async delete (req, res) {
+    const { id } = req.params
+    try {
+      const category = await CategoryModel.getById(id)
+      if (!category) {
+        return res.status(404).json({ error: 'Categoria no encontrada' })
+      }
+      await CategoryModel.delete(id)
+      return res.status(200).json({ message: 'Categoria eliminada correctamente' })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: error.message })
+    }
+  }
+
   // UPDATE
   static async update (req, res) {
     const { id } = req.params
