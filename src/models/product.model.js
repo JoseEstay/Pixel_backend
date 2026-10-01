@@ -26,6 +26,11 @@ export class ProductModel {
     return result.rows[0]
   }
 
+  static async delete (id) {
+    const result = await pool.query('DELETE FROM products WHERE id = $1 RETURNING *', [id])
+    return result.rows[0]
+  }
+
   static async update (id, { input }) {
     const { name, description, price, stock, category_id, is_active = true, sku, condition, image_url } = input
     const result = await pool.query(

@@ -44,6 +44,22 @@ export class productController {
     }
   }
 
+  // DELETE
+  static async delete (req, res) {
+    const { id } = req.params
+    try {
+      const product = await ProductModel.getById(id)
+      if (!product) {
+        return res.status(404).json({ error: 'Producto no encontrado' })
+      }
+      await ProductModel.delete(id)
+      return res.status(200).json({ message: 'Producto eliminado correctamente' })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: error.message })
+    }
+  }
+
   // UPDATE
   static async update (req, res) {
     const { id } = req.params
