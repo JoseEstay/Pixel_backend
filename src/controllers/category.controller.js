@@ -19,7 +19,7 @@ export class categoryController {
   }
 
   // GET ALL
-  static async getAll (req, res) {
+  static async getAll (_req, res) {
     try {
       const categories = await CategoryModel.getAll()
       return res.status(200).json(categories)

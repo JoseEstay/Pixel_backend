@@ -1,7 +1,7 @@
 import express from 'express'
-import corsMiddleware from './src/middlewares/cors.js'
-import { categoryRouter } from './src/routes/category.routes.js'
-import { productRouter } from './src/routes/product.routes.js'
+import { corsMiddleware } from './middlewares/cors.js'
+import { categoryRouter } from './routes/category.routes.js'
+import { productRouter } from './routes/product.routes.js'
 
 const app = express()
 
@@ -16,7 +16,15 @@ app.use('/products', productRouter)
   res.send('¡Bienvenido a la API de categorías!')
 }) */
 
-const PORT = process.env.PORT || 1234
+const PORT = process.env.PORT || 3002
+
+/* if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`)
+  })
+}
+
+export default app */
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`)
