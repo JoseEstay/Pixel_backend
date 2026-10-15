@@ -11,6 +11,8 @@ app.use(express.json())
 
 app.use('/categories', categoryRouter)
 app.use('/products', productRouter)
+app.use('/auth', (await import('./routes/auth.routes.js')).default)
+app.use('/users', (await import('./routes/user.routes.js')).default)
 
 /* app.get('/', (req, res) => {
   res.send('¡Bienvenido a la API de categorías!')
