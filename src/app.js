@@ -2,6 +2,7 @@ import express from 'express'
 import { corsMiddleware } from './middlewares/cors.js'
 import { categoryRouter } from './routes/category.routes.js'
 import { productRouter } from './routes/product.routes.js'
+import authRouter from './routes/auth.routes.js'
 
 const app = express()
 
@@ -11,8 +12,7 @@ app.use(express.json())
 
 app.use('/categories', categoryRouter)
 app.use('/products', productRouter)
-app.use('/auth', (await import('./routes/auth.routes.js')).default)
-app.use('/users', (await import('./routes/user.routes.js')).default)
+app.use('/auth', authRouter)
 
 /* app.get('/', (req, res) => {
   res.send('¡Bienvenido a la API de categorías!')

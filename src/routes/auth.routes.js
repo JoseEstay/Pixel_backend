@@ -1,18 +1,19 @@
 import { Router } from 'express'
-import { authController } from '../controllers/auth.controller.js'
+import { AuthController } from '../controllers/auth.controller.js'
+import { jwtValidation } from '../middlewares/jwtValidation.js'
 
-const authRouter = Router()
+const AuthRouter = Router()
 
-authRouter.get('/signup', authController.signup_get) // sign up page
-authRouter.get('/login', authController.login_get) // login in page
-authRouter.post('/signup', authController.signup_post) // create new user in db
-authRouter.post('/login', authController.login_post) // authenticate a current user
-authRouter.get('/logout', authController.logout) // log a user out
+AuthRouter.get('/signup', AuthController.signup_get) // sign up page
+AuthRouter.get('/login', AuthController.login_get) // login in page
+AuthRouter.post('/signup', AuthController.signup_post) // create new user in db
+AuthRouter.post('/login', AuthController.login_post) // authenticate a current user
+AuthRouter.get('/logout', AuthController.logout) // log a user out
 
-authRouter.post('/protected', jwtValidation, authController.protected)
+AuthRouter.post('/protected', jwtValidation, AuthController.protected)
 
-/* authRouter.post('/reset-password', authController.resetPassword);
-authRouter.post('/forgot-password', authController.forgotPassword); */
+/* AuthRouter.post('/reset-password', AuthController.resetPassword);
+AuthRouter.post('/forgot-password', AuthController.forgotPassword); */
 
-// authRouter.post('/refresh-token', authController.refreshToken);
-export default authRouter
+// AuthRouter.post('/refresh-token', AuthController.refreshToken);
+export default AuthRouter
