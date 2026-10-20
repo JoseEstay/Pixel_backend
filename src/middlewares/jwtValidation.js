@@ -1,18 +1,40 @@
-const jwtValidation = async (req, res, next) => {
-  const authHeader = req.headers.authorization
+import jwt from 'jsonwebtoken'
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Token de autenticación no proporcionado' })
+const getCookieValue = (cookieHeader, name) => {
+  if (!cookieHeader) return undefined
+
+  const cookie = cookieHeader
+    .split(';')
+    .map(part => part.trim())
+    .find(part => part.startsWith(`${name}=`))
+
+  if (!cookie) return undefined
+
+  const value = cookie.slice(name.length + 1)
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return undefined
+  }
+}
+
+const jwtValidation = (req, res, next) => {
+  const token = getCookieValue(req.headers.cookie, 'jwt')
+  if (!token) {
+    return res.status(401).json({ error: 'No has iniciado sesión' })
   }
 
-  const token = authHeader.split(' ')[1]
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    console.error('JWT_SECRET no está configurado')
+    return res.status(500).json({ error: 'Error interno del servidor' })
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = decoded
-    next()
-  } catch (error) {
-    return res.status(401).json({ error: 'Token de autenticación inválido' })
+    req.user = jwt.verify(token, secret, { algorithms: ['HS256'] })
+    return next()
+  } catch {
+    return res.status(401).json({ error: 'Sesión inválida o expirada' })
   }
 }
 
