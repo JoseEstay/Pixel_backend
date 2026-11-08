@@ -4,6 +4,7 @@ import { corsMiddleware } from './middlewares/cors.js'
 import { csrfOriginValidation } from './middlewares/csrfOriginValidation.js'
 import { categoryRouter } from './routes/category.routes.js'
 import { productRouter } from './routes/product.routes.js'
+import multicourier from './routes/multicourier.routes.js'
 import authRouter from './routes/auth.routes.js'
 
 const app = express()
@@ -16,10 +17,13 @@ app.disable('x-powered-by')
 app.use(csrfOriginValidation)
 app.use(corsMiddleware())
 app.use(express.json())
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))
 
 app.use('/categories', categoryRouter)
 app.use('/products', productRouter)
 app.use('/auth', authRouter)
+app.use('/', multicourier) // Ruta para obtener regiones desde MultiCourier
 
 const PORT = process.env.PORT || 3002
 

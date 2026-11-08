@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Envíos MultiCourier</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans p-6">
+
+    <div class="max-w-xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+        <h2 class="text-2xl font-bold mb-4 text-emerald-400">Cotizador de Envíos Nacional</h2>
+
+        <!-- Origen (Fijo en Tarapacá / Iquique) -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Origen:</label>
+            <input type="text" value="Iquique (Tarapacá)" disabled class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-gray-400">
+        </div>
+
+        <!-- Destino: Región -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Región de Destino:</label>
+            <select id="regionSelect" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+                <option value="">Cargando regiones...</option>
+            </select>
+        </div>
+
+        <!-- Destino: Comuna -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Comuna de Destino:</label>
+            <select id="comunaSelect" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+                <option value="">Primero seleccione una región...</option>
+            </select>
+        </div>
+
+        <!-- Dimensiones y Peso -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Peso (kg):</label>
+                <input type="number" id="peso" value="2" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Largo (cm):</label>
+                <input type="number" id="largo" value="30" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Ancho (cm):</label>
+                <input type="number" id="ancho" value="20" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Alto (cm):</label>
+                <input type="number" id="alto" value="15" class="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+            </div>
+        </div>
+
+        <button onclick="cotizarEnvio()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2 rounded transition">
+            Calcular Cotización
+        </button>
+
+        <!-- Resultados -->
+        <div id="resultado" class="mt-6 hidden">
+            <h3 class="text-lg font-semibold mb-2 text-emerald-300">Opciones de Envío Disponibles:</h3>
+            <div id="listaOpciones" class="space-y-2">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const regionSelect = document.getElementById('regionSelect');
+        const comunaSelect = document.getElementById('comunaSelect');
+
+        // 1. Cargar Regiones al iniciar
+        async function cargarRegiones() {
+            try {
+                const res = await fetch('/api/despacho/regiones');
+                const data = await res.json();
+                
+                if (data.success) {
+                    regionSelect.innerHTML = '<option value="">Seleccione región...</option>';
+                    data.regiones.forEach(r => {
+                        regionSelect.innerHTML += `<option value="${r.codigo}">${r.nombre}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error("Error cargando regiones:", error);
+                regionSelect.innerHTML = '<option value="">Error al cargar regiones</option>';
+            }
+        }
+
+        // 2. Cargar Comunas al cambiar de Región
+        regionSelect.addEventListener('change', async () => {
+            const regionCode = regionSelect.value;
+            comunaSelect.innerHTML = '<option value="">Cargando comunas...</option>';
+            
+            if (!regionCode) {
+                comunaSelect.innerHTML = '<option value="">Primero seleccione una región...</option>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/despacho/comunas/${regionCode}`);
+                const data = await res.json();
+
+                if (data.success && data.comunas.length > 0) {
+                    comunaSelect.innerHTML = '<option value="">Seleccione comuna...</option>';
+                    data.comunas.forEach(c => {
+                        comunaSelect.innerHTML += `<option value="${c.codigoComuna}">${c.nombreComuna}</option>`;
+                    });
+                } else {
+                    comunaSelect.innerHTML = '<option value="">No hay comunas disponibles</option>';
+                }
+            } catch (error) {
+                console.error("Error cargando comunas:", error);
+                comunaSelect.innerHTML = '<option value="">Error al cargar comunas</option>';
+            }
+        });
+
+        // 3. Enviar cotización al backend
+        async function cotizarEnvio() {
+            const destinoRegion = regionSelect.value;
+            const destinoComuna = comunaSelect.value;
+
+            if (!destinoRegion || !destinoComuna) {
+                alert('Por favor seleccione región y comuna de destino.');
+                return;
+            }
+
+            const payload = {
+                origenRegion: "TA",             // Tarapacá (Iquique)
+                origenComuna: "1",              // ID de comuna origen
+                destinoRegion: destinoRegion,
+                destinoComuna: destinoComuna,
+                peso: document.getElementById('peso').value,
+                alto: document.getElementById('alto').value,
+                ancho: document.getElementById('ancho').value,
+                largo: document.getElementById('largo').value
+            };
+
+            const resultadoDiv = document.getElementById('resultado');
+            const listaDiv = document.getElementById('listaOpciones');
+            
+            resultadoDiv.classList.remove('hidden');
+            listaDiv.innerHTML = '<p class="text-yellow-400">Consultando couriers...</p>';
+
+            try {
+                const res = await fetch('/api/despacho/cotizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                listaDiv.innerHTML = ''; 
+
+                if (data.success && data.opciones) {
+                    // La API de Chilenvíos devuelve un arreglo con los resultados de cada courier
+                    const resultados = Array.isArray(data.opciones) ? data.opciones : [data.opciones];
+
+                    if (resultados.length === 0) {
+                        listaDiv.innerHTML = `<p class="text-red-400">No hay tarifas disponibles para esta ruta.</p>`;
+                        return;
+                    }
+
+                    resultados.forEach((item, index) => {
+                        // Verificamos si el courier devolvió datos válidos o un error independiente
+                        if (item.error) {
+                            listaDiv.innerHTML += `
+                                <div class="bg-gray-700 p-3 rounded border border-red-600 text-sm">
+                                    <span class="text-red-400 font-bold">Courier #${index + 1}: Sin cobertura</span>
+                                    <span class="text-xs text-gray-400 block">${item.error}</span>
+                                </div>`;
+                            return;
+                        }
+
+                        const info = item.data || item;
+                        const nombreCourier = info.nameService || info.courier || `Courier ${index + 1}`;
+                        const plazo = info.promiseDay ? `Plazo: ${info.promiseDay} día(s)` : '';
+                        const precio = info.total !== undefined ? `$${Number(info.total).toLocaleString('es-CL')}` : 'No disponible';
+
+                        listaDiv.innerHTML += `
+                            <div class="flex justify-between items-center bg-gray-700 p-3 rounded border border-gray-600">
+                                <div>
+                                    <span class="font-bold text-white">${nombreCourier}</span>
+                                    <span class="text-xs text-gray-300 block">${info.serviceDescription || plazo}</span>
+                                </div>
+                                <span class="text-emerald-400 font-bold">${precio}</span>
+                            </div>`;
+                    });
+                } else {
+                    listaDiv.innerHTML = `<p class="text-red-400">No se pudieron obtener opciones de envío.</p>`;
+                }
+            } catch (error) {
+                console.error("Error en cotización:", error);
+                listaDiv.innerHTML = `<p class="text-red-400">Error de conexión al cotizar.</p>`;
+            }
+        }
+
+        // Cargar regiones al iniciar la vista
+        cargarRegiones();
+    </script>
+</body>
+</html>
