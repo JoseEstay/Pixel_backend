@@ -15,7 +15,7 @@ router.get('/api/despacho/regiones', async (req, res) => {
     });
 
     const data = await response.json();
-    
+
     // Mapeamos según la estructura descrita en el tutorial (codeRegion y name)
     const regiones = data.map(r => ({
       codigo: r.codeRegion,

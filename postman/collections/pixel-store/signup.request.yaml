@@ -1,0 +1,13 @@
+$kind: http-request
+url: http://localhost:3000/api/auth/signup
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "email": "admin1@oldpixel.cl",
+      "password": "MiPasswordSeguro123",
+      "fullName": "Admin Juan",
+      "role": "admin"
+    }
+order: 1000

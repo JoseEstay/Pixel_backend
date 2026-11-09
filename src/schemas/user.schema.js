@@ -10,7 +10,8 @@ const emailSchema = z.string().trim().min(1, { message: 'El correo electrónico 
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema.min(10, { message: 'La contraseña debe tener al menos 10 caracteres' }),
-  fullName: z.string().trim().min(5, { message: 'Nombre es requerido' }).max(50)
+  fullName: z.string().trim().min(5, { message: 'Nombre es requerido' }).max(50),
+  role: z.enum(['customer', 'admin']).optional().default('customer')
 })
 
 export const loginSchema = z.object({
