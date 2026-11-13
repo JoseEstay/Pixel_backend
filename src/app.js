@@ -9,7 +9,7 @@ import multicourier from './routes/multicourier.routes.js'
 import authRouter from './routes/auth.routes.js'
 import adminRouter from './routes/admin.routes.js'
 
-const app = express()
+export const app = express()
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET debe estar configurado en el archivo .env')
