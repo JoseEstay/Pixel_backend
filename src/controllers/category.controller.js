@@ -60,7 +60,7 @@ export class categoryController {
     }
   }
 
-  // UPDATE PUT
+  // PUT
   static async update (req, res) {
     const { id } = req.params
     const result = validateCategory(req.body)
@@ -81,7 +81,7 @@ export class categoryController {
     }
   }
 
-  // UPDATE PATCH
+  // PATCH
   static async patch (req, res) {
     const { id } = req.params
     const result = validateCategoryPatch(req.body)

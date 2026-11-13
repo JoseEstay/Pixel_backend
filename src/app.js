@@ -19,15 +19,15 @@ app.disable('x-powered-by')
 app.use(csrfOriginValidation)
 app.use(corsMiddleware())
 app.use(express.json())
-//app.use(express.static('public'))
+app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/categories', categoryRouter)
-app.use('/products', productRouter)
-app.use('/auth', authRouter)
+app.use('/api/categories', categoryRouter)
+app.use('/api/products', productRouter)
+app.use('/api/auth', authRouter)
 app.use('/', multicourier) // Ruta para obtener regiones desde MultiCourier
 app.use('/api/orders', orderRouter)
-app.use('api/admin', adminRouter)
+app.use('/api/admin', adminRouter)
 
 const PORT = process.env.PORT || 3002
 
