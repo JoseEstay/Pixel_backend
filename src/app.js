@@ -9,6 +9,7 @@ import multicourier from './routes/multicourier.routes.js'
 import authRouter from './routes/auth.routes.js'
 import adminRouter from './routes/admin.routes.js'
 import cartRouter from './routes/cart.routes.js'
+import userRouter from './routes/user.routes.js'
 import { startInventoryCleanupJob } from './jobs/inventoryCleanup.job.js'
 
 export const app = express()
@@ -31,6 +32,7 @@ app.use('/', multicourier) // Ruta para obtener regiones desde MultiCourier
 app.use('/api/orders', orderRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/cart', cartRouter)
+app.use('/api/users', userRouter)
 
 const PORT = process.env.PORT || 3002
 

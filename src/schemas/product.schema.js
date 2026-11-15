@@ -6,7 +6,7 @@ const productSchema = z.object({
       error: (issue) =>
         issue.input === undefined
           ? 'El nombre es obligatorio'
-          : 'El nombre debe ser un contexto'
+          : 'El nombre debe ser un texto'
     })
     .trim()
     .min(3, { message: 'El nombre debe tener al menos 3 caracteres' })
@@ -17,6 +17,7 @@ const productSchema = z.object({
     .max(255, { message: 'La descripción debe tener como máximo 255 caracteres' })
     .optional(),
   price: z.number().positive({ message: 'El precio debe ser un número positivo' }),
+  currency: z.string().trim().length(3, { message: 'La moneda debe tener exactamente 3 caracteres (ej: CLP)' }).default('CLP'),
   stock: z.number().int().nonnegative({ message: 'El stock debe ser un número entero no negativo' }),
   category_id: z.number().int().positive({ message: 'El ID de categoría debe ser un número entero positivo' }),
   is_active: z.boolean().optional(),

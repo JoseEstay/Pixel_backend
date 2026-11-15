@@ -19,12 +19,34 @@ export const loginSchema = z.object({
   password: passwordSchema.min(10, { message: 'La contraseña debe tener al menos 10 caracteres' })
 })
 
+export const updateProfileSchema = z.object({
+  fullName: z.string().trim().min(3, { message: 'El nombre debe tener al menos 3 caracteres' }).max(50).optional(),
+  currentPassword: z.string().optional(),
+  newPassword: passwordSchema.min(10, { message: 'La nueva contraseña debe tener al menos 10 caracteres' }).optional()
+}).refine((data) => {
+  if (data.newPassword && !data.currentPassword) {
+    return false
+  }
+  return true
+}, {
+  message: 'Debes ingresar tu contraseña actual para establecer una nueva contraseña',
+  path: ['currentPassword']
+}).refine((data) => {
+  return data.fullName !== undefined || data.newPassword !== undefined
+}, {
+  message: 'Debes proporcionar al menos un campo para actualizar (fullName o newPassword)'
+})
+
 const validateLogin = (input) => {
   return loginSchema.safeParse(input)
 }
 
 const validateRegister = (input) => {
   return registerSchema.safeParse(input)
+}
+
+export const validateUpdateProfile = (input) => {
+  return updateProfileSchema.safeParse(input)
 }
 
 export { validateLogin, validateRegister }
