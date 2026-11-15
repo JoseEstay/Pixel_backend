@@ -41,3 +41,11 @@ export function validatePartialOrder (input) {
 export function validateUpdateOrderStatus (input) {
   return updateOrderStatusSchema.safeParse(input)
 }
+
+export const cancelOrderSchema = z.object({
+  cancellation_reason: z.string().trim().min(3, 'El motivo de cancelación debe tener al menos 3 caracteres').max(500).optional()
+})
+
+export function validateCancelOrder (input) {
+  return cancelOrderSchema.safeParse(input)
+}

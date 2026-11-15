@@ -12,5 +12,8 @@ adminRouter.use(isAdmin)
 adminRouter.get('/orders/pending', AdminOrderController.getPendingOrders)
 adminRouter.patch('/orders/:id/confirm', AdminOrderController.confirmPayment)
 adminRouter.patch('/orders/:id/ship', AdminOrderController.markAsShipped)
+adminRouter.patch('/orders/:id/deliver', AdminOrderController.markAsDelivered)
+adminRouter.patch('/orders/:id/cancel', AdminOrderController.cancelOrder)
+adminRouter.post('/orders/cleanup-expired', AdminOrderController.triggerCleanupExpired)
 
 export default adminRouter

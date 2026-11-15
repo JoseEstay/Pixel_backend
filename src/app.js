@@ -8,6 +8,8 @@ import orderRouter from './routes/order.routes.js'
 import multicourier from './routes/multicourier.routes.js'
 import authRouter from './routes/auth.routes.js'
 import adminRouter from './routes/admin.routes.js'
+import cartRouter from './routes/cart.routes.js'
+import { startInventoryCleanupJob } from './jobs/inventoryCleanup.job.js'
 
 export const app = express()
 
@@ -28,9 +30,11 @@ app.use('/api/auth', authRouter)
 app.use('/', multicourier) // Ruta para obtener regiones desde MultiCourier
 app.use('/api/orders', orderRouter)
 app.use('/api/admin', adminRouter)
+app.use('/api/cart', cartRouter)
 
 const PORT = process.env.PORT || 3002
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`)
+  startInventoryCleanupJob()
 })

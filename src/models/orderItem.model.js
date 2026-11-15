@@ -35,4 +35,16 @@ export class OrderItemModel {
 
     await client.query(finalQuery, finalValues)
   }
+
+  static async getByOrderId (orderId) {
+    const { dataBase } = await import('../config/db.js')
+    const query = `
+      SELECT id, order_id, product_id, product_name, product_sku, quantity, unit_price
+      FROM order_items
+      WHERE order_id = $1
+      ORDER BY id ASC
+    `
+    const result = await dataBase.query(query, [orderId])
+    return result.rows
+  }
 }
