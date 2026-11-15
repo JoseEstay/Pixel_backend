@@ -14,6 +14,41 @@ describe('Order Endpoints (/api/orders)', () => {
     jest.restoreAllMocks()
   })
 
+  describe('POST /api/orders', () => {
+    it('debe responder 201 al crear una orden correctamente mediante OrderService', async () => {
+      const { OrderService } = await import('../src/services/order.service.js')
+      const mockCreatedOrder = {
+        id: 'order-uuid-created',
+        order_number: 'OP-20261115-XYZ1',
+        total_amount: 60000
+      }
+
+      jest.spyOn(OrderService, 'processNewOrder').mockResolvedValue({
+        order: mockCreatedOrder,
+        snapshot: {}
+      })
+
+      const res = await request(app)
+        .post('/api/orders')
+        .set('Cookie', [`jwt=${customerToken}`])
+        .send({
+          cart_id: '123e4567-e89b-12d3-a456-426614174000',
+          shipping_recipient_name: 'María López',
+          shipping_phone: '+56912345678',
+          shipping_address_line1: 'Av. Siempre Viva 742',
+          shipping_commune: 'Providencia',
+          shipping_city: 'Santiago',
+          shipping_region: 'Región Metropolitana',
+          shipping_amount: 5000
+        })
+
+      expect(res.status).toBe(201)
+      expect(res.body.message).toBe('Orden creada con éxito. Por favor realice la transferencia.')
+      expect(res.body.order_number).toBe('OP-20261115-XYZ1')
+      expect(res.body.total_amount).toBe(60000)
+    })
+  })
+
   describe('GET /api/orders/my-orders', () => {
     it('debe responder 401 si no hay token', async () => {
       const res = await request(app).get('/api/orders/my-orders')

@@ -76,8 +76,8 @@ export class OrderService {
     }
 
     // C. Calcular totales y armar snapshot
-    // Nota: Asumimos que el cliente envía el shipping_amount o lo calculas con MultiCourier antes.
-    const shippingAmount = 5000 // Aquí deberías llamar a tu API de MultiCourier
+    // Toma el shipping_amount enviado (ej: cotizado previamente con MultiCourier) o 0
+    const shippingAmount = data.shipping_amount !== undefined ? Number(data.shipping_amount) : 0
     const snapshot = this.buildSnapshot(cartItems, { ...data, shipping_amount: shippingAmount })
     const orderNumber = this.generateOrderNumber()
     

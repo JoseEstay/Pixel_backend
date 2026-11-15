@@ -10,7 +10,8 @@ export const orderSchema = z.object({
   shipping_commune: z.string().min(2).max(100),
   shipping_city: z.string().min(2).max(100),
   shipping_region: z.string().min(2).max(100),
-  shipping_postal_code: z.string().max(20).optional()
+  shipping_postal_code: z.string().max(20).optional(),
+  shipping_amount: z.number().nonnegative().optional().default(0)
 })
 
 // 2. Esquema para ACTUALIZAR una orden (por ejemplo, desde el panel de Admin)
