@@ -9,7 +9,7 @@ export class AdminOrderController {
       const result = await dataBase.query(`
         SELECT id, order_number, total_amount, created_at, shipping_recipient_name, payment_status
         FROM orders 
-        WHERE status = 'pending' 
+        WHERE status = 'PENDIENTE' 
         ORDER BY created_at ASC
       `)
       return res.json({ orders: result.rows })
@@ -30,12 +30,12 @@ export class AdminOrderController {
       // Actualizar orden a 'confirmed'
       const orderResult = await client.query(`
         UPDATE orders 
-        SET status = 'confirmed', 
-            payment_status = 'confirmed', 
+        SET status = 'CONFIRMADA', 
+            payment_status = 'CONFIRMADA', 
             confirmed_by_admin_id = $1, 
             confirmed_at = NOW(),
             updated_at = NOW()
-        WHERE id = $2 AND status = 'pending'
+        WHERE id = $2 AND status = 'PENDIENTE'
         RETURNING *
       `, [adminId, id])
 
@@ -51,16 +51,16 @@ export class AdminOrderController {
         FROM inventory_reservations ir
         WHERE ir.order_id = $1 
           AND ir.product_id = p.id 
-          AND ir.status = 'pending'
+          AND ir.status = 'ACTIVA'
       `, [id])
 
       // 2. Sellar reservas de stock a 'confirmed'
       await client.query(`
         UPDATE inventory_reservations 
-        SET status = 'confirmed', 
+        SET status = 'CONFIRMADA', 
             confirmed_at = NOW(), 
             updated_at = NOW()
-        WHERE order_id = $1 AND status = 'pending'
+        WHERE order_id = $1 AND status = 'PENDIENTE'
       `, [id])
 
       await client.query('COMMIT')
@@ -89,13 +89,13 @@ export class AdminOrderController {
     try {
       const result = await dataBase.query(`
         UPDATE orders 
-        SET status = 'shipped', 
+        SET status = 'ENVIADA', 
             tracking_number = $1, 
             shipping_carrier = $2,
             tracking_url = $3,
             shipped_at = NOW(),
             updated_at = NOW()
-        WHERE id = $4 AND status = 'confirmed'
+        WHERE id = $4 AND status = 'CONFIRMADO'
         RETURNING *
       `, [tracking_number, shipping_carrier, tracking_url || null, id])
 
@@ -155,10 +155,10 @@ export class AdminOrderController {
       // Liberar reservas de inventario asociadas
       await client.query(`
         UPDATE inventory_reservations 
-        SET status = 'released', 
+        SET status = 'LIBERADA', 
             released_at = NOW(),
             updated_at = NOW()
-        WHERE order_id = $1 AND status != 'released'
+        WHERE order_id = $1 AND status != 'LIBERADA'
       `, [id])
 
       await client.query('COMMIT')

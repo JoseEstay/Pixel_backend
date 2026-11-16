@@ -11,8 +11,8 @@ export class OrderModel {
       total_amount,
       currency = 'CLP',
       payment_method = 'transfer',
-      status = 'pending',
-      payment_status = 'pending',
+      status = 'PENDIENTE',
+      payment_status = 'PENDIENTE',
       snapshot,
       shipping_recipient_name,
       shipping_phone,
@@ -119,12 +119,12 @@ export class OrderModel {
   static async cancelWithClient (client, { orderId, userId, cancellationReason }) {
     const query = `
       UPDATE orders
-      SET status = 'cancelled',
-          payment_status = 'cancelled',
+      SET status = 'CANCELADA',
+          payment_status = 'CANCELADA',
           cancelled_at = NOW(),
           cancellation_reason = $1,
           updated_at = NOW()
-      WHERE id = $2 AND user_id = $3 AND status = 'pending'
+      WHERE id = $2 AND user_id = $3 AND status = 'PENDIENTE'
       RETURNING *
     `
     const result = await client.query(query, [cancellationReason || 'Cancelado por el cliente', orderId, userId])
@@ -135,10 +135,10 @@ export class OrderModel {
   static async markAsDelivered (orderId) {
     const query = `
       UPDATE orders
-      SET status = 'delivered',
+      SET status = 'ENTREGADA',
           delivered_at = NOW(),
           updated_at = NOW()
-      WHERE id = $1 AND status = 'shipped'
+      WHERE id = $1 AND status = 'ENVIADA'
       RETURNING *
     `
     const result = await dataBase.query(query, [orderId])
@@ -149,13 +149,13 @@ export class OrderModel {
   static async adminCancelWithClient (client, { orderId, cancellationReason, adminId }) {
     const query = `
       UPDATE orders
-      SET status = 'cancelled',
-          payment_status = 'rejected',
+      SET status = 'CANCELADA',
+          payment_status = 'RECHAZADO',
           cancelled_at = NOW(),
           cancellation_reason = $1,
           confirmed_by_admin_id = $2,
           updated_at = NOW()
-      WHERE id = $3 AND status IN ('pending', 'confirmed')
+      WHERE id = $3 AND status IN ('PENDIENTE', 'CONFIRMADA')
       RETURNING *
     `
     const result = await client.query(query, [

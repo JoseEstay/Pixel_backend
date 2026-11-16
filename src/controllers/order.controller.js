@@ -105,7 +105,7 @@ export class OrderController {
         return res.status(403).json({ error: 'No tienes permiso para cancelar esta orden' })
       }
 
-      if (order.status !== 'pending') {
+      if (order.status !== 'PENDIENTE') {
         return res.status(400).json({
           error: `Solo se pueden cancelar órdenes en estado pendiente. Estado actual: ${order.status}`
         })
@@ -121,10 +121,10 @@ export class OrderController {
       // 3. Liberar las reservas de inventario
       await client.query(`
         UPDATE inventory_reservations 
-        SET status = 'released', 
+        SET status = 'LIBERADA', 
             released_at = NOW(),
             updated_at = NOW()
-        WHERE order_id = $1 AND status != 'released'
+        WHERE order_id = $1 AND status != 'LIBERADA'
       `, [id])
 
       await client.query('COMMIT')

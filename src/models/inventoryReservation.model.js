@@ -30,7 +30,7 @@ export class InventoryReservationModel {
       const expiredQuery = `
         SELECT DISTINCT order_id 
         FROM inventory_reservations 
-        WHERE status = 'pending' AND expires_at < NOW()
+        WHERE status = 'PENDIENTE' AND expires_at < NOW()
       `
       const { rows: expiredRows } = await client.query(expiredQuery)
 
@@ -44,10 +44,10 @@ export class InventoryReservationModel {
       // 2. Marcar las reservas como liberadas
       const releaseReservationsQuery = `
         UPDATE inventory_reservations 
-        SET status = 'released', 
+        SET status = 'LIBERADA', 
             released_at = NOW(),
             updated_at = NOW()
-        WHERE status = 'pending' AND expires_at < NOW()
+        WHERE status = 'PENDIENTE' AND expires_at < NOW()
         RETURNING id
       `
       const reservationsResult = await client.query(releaseReservationsQuery)
@@ -55,12 +55,12 @@ export class InventoryReservationModel {
       // 3. Cancelar las órdenes pendientes asociadas
       const cancelOrdersQuery = `
         UPDATE orders 
-        SET status = 'cancelled', 
-            payment_status = 'cancelled', 
+        SET status = 'RECHAZADO', 
+            payment_status = 'RECHAZADO', 
             cancelled_at = NOW(),
             cancellation_reason = 'Cancelado automáticamente: expiró el plazo de 24 horas para realizar la transferencia.',
             updated_at = NOW()
-        WHERE id = ANY($1::uuid[]) AND status = 'pending'
+        WHERE id = ANY($1::uuid[]) AND status = 'PENDIENTE'
         RETURNING id
       `
       const ordersResult = await client.query(cancelOrdersQuery, [orderIds])
@@ -86,7 +86,7 @@ export class InventoryReservationModel {
       SELECT COALESCE(SUM(quantity), 0)::integer as reserved_quantity
       FROM inventory_reservations
       WHERE product_id = $1 
-        AND status = 'pending' 
+        AND status = 'PENDIENTE' 
         AND expires_at > NOW()
     `
     const result = await dataBase.query(query, [productId])
