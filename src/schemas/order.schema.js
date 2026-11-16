@@ -20,8 +20,8 @@ export const orderSchema = z.object({
 // Por eso, es mejor crear un esquema específico para el admin:
 
 export const updateOrderStatusSchema = z.object({
-  status: z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']).optional(),
-  payment_status: z.enum(['pending', 'confirmed', 'rejected']).optional(),
+  status: z.enum(['PENDIENTE', 'CONFIRMADA', 'ENVIADA', 'ENTREGADO', 'CANCELADO']).optional(),
+  payment_status: z.enum(['PENDIENTE', 'CONFIRMADA', 'RECHAZADO']).optional(),
   tracking_number: z.string().max(100).optional(),
   tracking_url: z.string().url('Debe ser una URL válida').optional(),
   shipping_carrier: z.string().max(50).optional(),
